@@ -206,7 +206,9 @@ int main(int argc, const char ** argv) {
   engine.run(program, niters);
 
   /* Run TopN program */
+  timer test_timer;
   run_general_topn_program(pengine, &latent_factors_inmem);
+  std::cout << "Test Time: " << std::setw(10) << test_timer.current_time() << std::endl;
 
   /* Output latent factor matrices in matrix-market format */
   output_sgd_result(training);
