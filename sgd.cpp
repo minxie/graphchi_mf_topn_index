@@ -33,6 +33,7 @@
 
 #include "eigen_wrapper.hpp"
 #include "common.hpp"
+#include "topn_engine.hpp"
 
 double sgd_lambda = 1e-3; //sgd regularization
 double sgd_gamma = 1e-3;  //sgd step size
@@ -203,6 +204,9 @@ int main(int argc, const char ** argv) {
   set_engine_flags(engine);
   pengine = &engine;
   engine.run(program, niters);
+
+  /* Run TopN program */
+  run_general_topn_program(pengine, &latent_factors_inmem);
 
   /* Output latent factor matrices in matrix-market format */
   output_sgd_result(training);
