@@ -33,7 +33,6 @@
 
 #include "eigen_wrapper.hpp"
 #include "common.hpp"
-#include "topn_engine.hpp"
 
 double sgd_lambda = 1e-3; //sgd regularization
 double sgd_gamma = 1e-3;  //sgd step size
@@ -69,6 +68,7 @@ std::vector<vertex_data> latent_factors_inmem;
 
 #include "rmse.hpp"
 #include "rmse_engine.hpp"
+#include "topn_engine.hpp"
 #include "io.hpp"
 
 /** compute a missing value based on SGD algorithm */
