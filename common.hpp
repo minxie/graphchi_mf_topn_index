@@ -33,8 +33,8 @@
 #include "graphchi_basic_includes.hpp"
 #include "api/vertex_aggregator.hpp"
 #include "preprocessing/sharder.hpp"
-#include "../../example_apps/matrix_factorization/matrixmarket/mmio.h"
-#include "../../example_apps/matrix_factorization/matrixmarket/mmio.c"
+#include "../example_apps/matrix_factorization/matrixmarket/mmio.h"
+#include "../example_apps/matrix_factorization/matrixmarket/mmio.c"
 
 #include <stdio.h>
 #ifdef __APPLE__
