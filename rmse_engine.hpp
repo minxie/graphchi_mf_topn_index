@@ -166,7 +166,7 @@ void run_validation(graphchi_engine<VertexDataType, EdgeDataType> * pvalidation_
   //no validation data, no need to run validation engine calculations
   cur_iteration = context.iteration;
   if (pvalidation_engine == NULL){
-    std::cout << std::endl;
+    // std::cout << std::endl;
     return;
   }
   if (calc_ap){ //AP
