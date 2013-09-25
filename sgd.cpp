@@ -203,7 +203,10 @@ int main(int argc, const char ** argv) {
   graphchi_engine<VertexDataType, EdgeDataType> engine(training, nshards, false, m); 
   set_engine_flags(engine);
   pengine = &engine;
+
+  timer train_timer;
   engine.run(program, niters);
+  std::cout << "Train Time: " << std::setw(10) << train_timer.current_time() << std::endl;
 
   /* Run TopN program */
   timer test_timer;
