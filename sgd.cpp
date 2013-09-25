@@ -209,6 +209,7 @@ int main(int argc, const char ** argv) {
   std::cout << "Train Time: " << std::setw(10) << train_timer.current_time() << std::endl;
 
   /* Run TopN program */
+  n_top = get_option_int("n_int", 10);
   timer test_timer;
   run_general_topn_program(pengine, &latent_factors_inmem, &sgd_predict);
   std::cout << "Test Time: " << std::setw(10) << test_timer.current_time() << std::endl;

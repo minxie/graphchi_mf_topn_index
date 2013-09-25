@@ -11,7 +11,7 @@ std::vector<VertexDataType> *latent_factors;
 float (*pprediction_func_test)(const vertex_data&, const vertex_data&, const float, double &, void *) = NULL;
 
 /* TopN rec parameters */
-const int n_top = 10;
+const int n_top = -1;
 
 bool sort_items_c(std::pair<unsigned int, double> a, std::pair<unsigned int, double> b) {
   return a.second > b.second;
