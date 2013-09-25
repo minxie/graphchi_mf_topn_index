@@ -8,7 +8,7 @@
 
 /* Parameters which should be defined in the main algorithm */
 std::vector<VertexDataType> *latent_factors;
-float (*pprediction_func)(const vertex_data&, const vertex_data&, const float, double &, void *) = NULL;
+float (*pprediction_func_test)(const vertex_data&, const vertex_data&, const float, double &, void *) = NULL;
 
 /* TopN rec parameters */
 const int n_top = 10;
@@ -35,7 +35,7 @@ struct GeneralTopNProgram : public GraphChiProgram<VertexDataType, EdgeDataType>
         if (h_neighbor.find(i) == h_neighbor.end()) { // Not observed
           vertex_data & nbr_latent = latent_factors_inmem[i];
           double prediction;
-          (*pprediction_func)(vdata, nbr_latent, 0, prediction, NULL);
+          (*pprediction_func_test)(vdata, nbr_latent, 0, prediction, NULL);
           rec_vec.push_back(std::make_pair(i, prediction));
         }
       }
@@ -58,7 +58,7 @@ void run_general_topn_program(graphchi_engine<VertexDataType, EdgeDataType> *eng
                                                        float rating, double & prediction, 
                                                        void * extra)) {
   latent_factors = latent_factors_inmem;
-  pprediction_func = prediction_func;
+  pprediction_func_test = prediction_func;
 
   GeneralTopNProgram test_prog;
   engine->run(test_prog, 1);
