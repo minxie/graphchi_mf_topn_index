@@ -206,13 +206,13 @@ int main(int argc, const char ** argv) {
 
   timer train_timer;
   engine.run(program, niters);
-  std::cout << "Train Time: " << std::setw(10) << train_timer.current_time() << std::endl;
+  std::cout << "Trn Time: " << std::setw(10) << train_timer.current_time() / niters << std::endl;
 
   /* Run TopN program */
   n_top = get_option_int("n_int", 10);
   timer test_timer;
   run_general_topn_program(pengine, &latent_factors_inmem, &sgd_predict);
-  std::cout << "Test Time: " << std::setw(10) << test_timer.current_time() << std::endl;
+  std::cout << "Tst Time: " << std::setw(10) << test_timer.current_time() << std::endl;
 
   /* Output latent factor matrices in matrix-market format */
   output_sgd_result(training);
