@@ -97,6 +97,7 @@ float sgd_predict(const vertex_data& user,
  * class. The main logic is usually in the update function.
  */
 struct SGDVerticesInMemProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
+  mutex lock;
 
   /**
    * Called before an iteration is started.
@@ -132,6 +133,11 @@ struct SGDVerticesInMemProgram : public GraphChiProgram<VertexDataType, EdgeData
         double err = observation - estScore;
         if (std::isnan(err) || std::isinf(err))
           logstream(LOG_FATAL)<<"SGD got into numerical error. Please tune step size using --sgd_gamma and sgd_lambda" << std::endl;
+
+        lock.lock();
+        std::cout << err << std::endl;
+        lock.unlock();
+
         //NOTE: the following code is not thread safe, since potentially several
         //user nodes may updates this item gradient vector concurrently. However in practice it
         //did not matter in terms of accuracy on a multicore machine.
