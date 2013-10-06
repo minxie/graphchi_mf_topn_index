@@ -316,7 +316,7 @@ double training_rmse(int iteration, graphchi_context &gcontext, bool items = fal
   if (loss_type == AP)
     loss_type = SQUARE;
   ret = dtraining_rmse = finalize_rmse(dtraining_rmse, pengine->num_edges());
-  // std::cout<< std::setw(10) << mytimer.current_time() << ") Iteration: " << std::setw(3) <<iteration<<" Training " << error_names[loss_type] << ":"<< std::setw(10)<< dtraining_rmse;
+  std::cout<< std::setw(10) << mytimer.current_time() << ") Iteration: " << std::setw(3) <<iteration<<" Training " << error_names[loss_type] << ":"<< std::setw(10)<< dtraining_rmse;
   loss_type = old_loss;
 
   return ret;
