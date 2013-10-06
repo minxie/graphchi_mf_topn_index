@@ -134,9 +134,9 @@ struct SGDVerticesInMemProgram : public GraphChiProgram<VertexDataType, EdgeData
         if (std::isnan(err) || std::isinf(err))
           logstream(LOG_FATAL)<<"SGD got into numerical error. Please tune step size using --sgd_gamma and sgd_lambda" << std::endl;
 
-        lock.lock();
-        std::cout << err << std::endl;
-        lock.unlock();
+        // lock.lock();
+        // std::cout << err << std::endl;
+        // lock.unlock();
 
         //NOTE: the following code is not thread safe, since potentially several
         //user nodes may updates this item gradient vector concurrently. However in practice it
