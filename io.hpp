@@ -496,7 +496,13 @@ int convert_matrixmarket(std::string base_filename, size_t nodes = 0, size_t edg
 
   for (size_t i=0; i<nz; i++)
     {
-      if (tokens_per_row == 3){
+      if (tokens_per_row == 4){
+	uint tmp;
+      	int rc = fscanf(f, "%u %u %lg %u\n", &I, &J, &val, &tmp);
+	if (rc != 4)
+	  logstream(LOG_FATAL)<<"Error when reading input file: " << i << std::endl;
+      }
+      else if(tokens_per_row == 3){
         int rc = fscanf(f, "%u %u %lg\n", &I, &J, &val);
         if (rc != 3)
           logstream(LOG_FATAL)<<"Error when reading input file: " << i << std::endl;

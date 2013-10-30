@@ -185,11 +185,13 @@ int main(int argc, const char ** argv) {
   sgd_gamma     = get_option_float("sgd_gamma", 1e-3);
   sgd_step_dec  = get_option_float("sgd_step_dec", 0.9);
 
+  int file_format   = get_option_int("ff", 3);
+
   parse_command_line_args();
   parse_implicit_command_line();
 
   /* Preprocess data if needed, or discover preprocess files */
-  int nshards = convert_matrixmarket<EdgeDataType>(training, 0, 0, 3, TRAINING, false);
+  int nshards = convert_matrixmarket<EdgeDataType>(training, 0, 0, file_format, TRAINING, false);
   init_feature_vectors<std::vector<vertex_data> >(M+N, latent_factors_inmem, !load_factors_from_file);
   if (validation != ""){
     int vshards = convert_matrixmarket<EdgeDataType>(validation, 0, 0, 3, VALIDATION, false);
