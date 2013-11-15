@@ -38,6 +38,7 @@ double dtraining_rmse = 0;
 double last_training_rmse = 0;
 double dvalidation_rmse = 0;
 double last_validation_rmse = 0;
+bool trconverged_engine = false;
 
 int sign(double x){ if (x < 0) return -1; else if (x > 0) return 1; else return 0; }
 
@@ -312,12 +313,28 @@ double training_rmse(int iteration, graphchi_context &gcontext, bool items = fal
   dtraining_rmse = 0;
   double ret = 0;
   dtraining_rmse = sum(rmse_vec);
+
+/*  if((dtraining_rmse-last_training_rmse) > -conv_thres && (dtraining_rmse-last_training_rmse) < conv_thres)
+  {
+    trconverged_engine = true; 
+    gcontext.set_last_iteration(gcontext.iteration);   
+  }*/
+
   int old_loss = loss_type;
   if (loss_type == AP)
     loss_type = SQUARE;
   ret = dtraining_rmse = finalize_rmse(dtraining_rmse, pengine->num_edges());
-  std::cout<< std::setw(10) << mytimer.current_time() << ") Iteration: " << std::setw(3) <<iteration<<" Training " << error_names[loss_type] << ":"<< std::setw(10)<< dtraining_rmse;
+ // std::cout<< std::setw(10) << mytimer.current_time() << ") Iteration: " << std::setw(3) <<iteration<<" Training " << error_names[loss_type] << ":"<< std::setw(10)<< dtraining_rmse << " rmse difference: " << std::setw(10) << dtraining_rmse-last_training_rmse;
+  std::ofstream ofs(result.c_str(), std::ofstream::out | std::ofstream::app);
+  ofs<< std::setw(10) << mytimer.current_time() << ") Iteration: " << std::setw(3) <<iteration<<" Training " << error_names[loss_type] << ":"<< std::setw(10)<< dtraining_rmse << " rmse difference: " << std::setw(10) << dtraining_rmse-last_training_rmse << std::endl;
+  ofs.close(); 
   loss_type = old_loss;
+
+  if((dtraining_rmse-last_training_rmse) > -conv_thres && (dtraining_rmse-last_training_rmse) < conv_thres)
+  {
+    trconverged_engine = true;
+    gcontext.set_last_iteration(gcontext.iteration);
+  }
 
   return ret;
 }

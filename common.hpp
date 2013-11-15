@@ -24,11 +24,12 @@
  */
 
 #include <algorithm>
+#include <fstream>
 #include <assert.h>
 #include <cmath>
 #include <errno.h>
 #include <string>
-
+#include <iostream>
 #include "util.hpp"
 #include "graphchi_basic_includes.hpp"
 #include "api/vertex_aggregator.hpp"
@@ -46,9 +47,11 @@ using namespace graphchi;
 double minval = -1e100; //max allowed value in matrix
 double maxval = 1e100; //min allowed value in matrix
 double valrange = 1;   //range of allowed values in matrix
+double conv_thres = 1e-3; //converge threshold
 std::string training;
 std::string validation;
 std::string test;
+std::string result;
 uint M, N, K;
 size_t L, Le;
 uint Me, Ne;
@@ -109,9 +112,15 @@ void parse_command_line_args(){
   validation = get_option_string("validation", "");
   test = get_option_string("test", "");
   D    = get_option_int("D", D);
+  
+  result = get_option_string("result", "");
+  std::ofstream ofs(result.c_str(), std::ofstream::out);
+  ofs.close();
 
   maxval        = get_option_float("maxval", 1e100);
   minval        = get_option_float("minval", -1e100);
+  conv_thres	= get_option_float("tol", 1e-3);
+
   if (minval >= maxval)
     logstream(LOG_FATAL)<<"Min allowed rating (--minval) should be smaller than max allowed rating (--maxval)" << std::endl;
   valrange      = maxval - minval;
@@ -184,6 +193,13 @@ void print_copyright(){
     " comments or bug reports to danny.bickson@gmail.com " << std::endl;
 }
 
+void write_copyright(){
+  std::ofstream ofs(result.c_str(), std::ofstream::out); 
+  ofs << "GraphChi Collaborative filtering library is written by Danny Bickson (c). Send any "
+    " comments or bug reports to danny.bickson@gmail.com " << std::endl;
+  ofs.close();
+}
+
 void print_config(){
   std::cout<<"[feature_width] => [" << D << "]" << std::endl;
   std::cout<<"[users] => [" << M << "]" << std::endl;
@@ -192,6 +208,7 @@ void print_config(){
   std::cout<<"[number_of_threads] => [" << number_of_omp_threads() << "]" <<std::endl;
   std::cout<<"[membudget_Mb] => [" << get_option_int("membudget_mb") << "]" <<std::endl; 
 }
+
 
 template<typename T>
 void init_feature_vectors(uint size, T& latent_factors_inmem, bool randomize = true, double scale = 1.0){

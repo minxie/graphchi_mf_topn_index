@@ -171,8 +171,8 @@ void output_sgd_result(std::string filename) {
 
 int main(int argc, const char ** argv) {
 
-  print_copyright();
-
+ // print_copyright();
+  write_copyright();
   //* GraphChi initialization will read the command line arguments and the configuration file. */
   graphchi_init(argc, argv);
 
@@ -186,6 +186,7 @@ int main(int argc, const char ** argv) {
   sgd_step_dec  = get_option_float("sgd_step_dec", 0.9);
 
   int file_format   = get_option_int("ff", 3);
+
 
   parse_command_line_args();
   parse_implicit_command_line();
@@ -214,13 +215,18 @@ int main(int argc, const char ** argv) {
 
   timer train_timer;
   engine.run(program, niters);
-  std::cout << "Trn Time: " << std::setw(10) << train_timer.current_time() / niters << std::endl;
+ // std::cout << "Trn Time for file test: " << std::setw(10) << train_timer.current_time() / niters << std::endl;
+
+  std::ofstream ofs(result.c_str(), std::ofstream::out | std::ofstream::app);
+  ofs << "Trn Time: " << std::setw(10) << train_timer.current_time() / niters << std::endl;
 
   /* Run TopN program */
   n_top = get_option_int("n_int", 10);
   timer test_timer;
   run_general_topn_program(pengine, &latent_factors_inmem, &sgd_predict);
-  std::cout << "Tst Time: " << std::setw(10) << test_timer.current_time() << std::endl;
+ // std::cout << "Tst Time: " << std::setw(10) << test_timer.current_time() << std::endl;
+  ofs << "Tst Time: " << std::setw(10) << test_timer.current_time() << std::endl;
+  ofs.close();
 
   /* Output latent factor matrices in matrix-market format */
   output_sgd_result(training);
