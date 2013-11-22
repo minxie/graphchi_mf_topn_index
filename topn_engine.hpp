@@ -32,12 +32,12 @@ struct GeneralTopNProgram : public GraphChiProgram<VertexDataType, EdgeDataType>
       std::vector<std::pair<unsigned int, double> > rec_vec;
       vertex_data & vdata = (*latent_factors)[vertex.id()];
       for (unsigned int i = M; i < M + N; i++) {
-        if (h_neighbor.find(i) == h_neighbor.end()) { // Not observed
+      //  if (h_neighbor.find(i) == h_neighbor.end()) { // Not observed
           vertex_data & nbr_latent = latent_factors_inmem[i];
           double prediction;
           (*pprediction_func_test)(vdata, nbr_latent, 0, prediction, NULL);
           rec_vec.push_back(std::make_pair(i, prediction));
-        }
+       // }
       }
       std::partial_sort(rec_vec.begin(), rec_vec.begin()+n_top, rec_vec.end(), sort_items_c);
     }
@@ -47,7 +47,8 @@ struct GeneralTopNProgram : public GraphChiProgram<VertexDataType, EdgeDataType>
   }
 
   void after_iteration(int iteration, graphchi_context &gcontext) {
-  }
+   gcontext.set_last_iteration(0);  
+}
 
 };
 

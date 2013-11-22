@@ -114,8 +114,14 @@ void parse_command_line_args(){
   D    = get_option_int("D", D);
   
   result = get_option_string("result", "");
-  std::ofstream ofs(result.c_str(), std::ofstream::out);
-  ofs.close();
+  if (D == 10) {
+    std::ofstream ofs(result.c_str(), std::ofstream::out);
+    ofs.close();
+  }
+  else {
+    std::ofstream ofs(result.c_str(), std::ofstream::out | std::ofstream::app);
+    ofs.close();
+  }
 
   maxval        = get_option_float("maxval", 1e100);
   minval        = get_option_float("minval", -1e100);

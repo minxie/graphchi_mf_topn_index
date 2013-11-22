@@ -324,10 +324,10 @@ double training_rmse(int iteration, graphchi_context &gcontext, bool items = fal
   if (loss_type == AP)
     loss_type = SQUARE;
   ret = dtraining_rmse = finalize_rmse(dtraining_rmse, pengine->num_edges());
- // std::cout<< std::setw(10) << mytimer.current_time() << ") Iteration: " << std::setw(3) <<iteration<<" Training " << error_names[loss_type] << ":"<< std::setw(10)<< dtraining_rmse << " rmse difference: " << std::setw(10) << dtraining_rmse-last_training_rmse;
-  std::ofstream ofs(result.c_str(), std::ofstream::out | std::ofstream::app);
-  ofs<< std::setw(10) << mytimer.current_time() << ") Iteration: " << std::setw(3) <<iteration<<" Training " << error_names[loss_type] << ":"<< std::setw(10)<< dtraining_rmse << " rmse difference: " << std::setw(10) << dtraining_rmse-last_training_rmse << std::endl;
-  ofs.close(); 
+  std::cout<< std::setw(10) << mytimer.current_time() << ") Iteration: " << std::setw(3) <<iteration<<" Training " << error_names[loss_type] << ":"<< std::setw(10)<< dtraining_rmse << " rmse difference: " << std::setw(10) << dtraining_rmse-last_training_rmse;
+  //std::ofstream ofs(result.c_str(), std::ofstream::out | std::ofstream::app);
+  //ofs<< std::setw(10) << mytimer.current_time() << ") Iteration: " << std::setw(3) <<iteration<<" Training " << error_names[loss_type] << ":"<< std::setw(10)<< dtraining_rmse << " rmse difference: " << std::setw(10) << dtraining_rmse-last_training_rmse << std::endl;
+  //ofs.close(); 
   loss_type = old_loss;
 
   if((dtraining_rmse-last_training_rmse) > -conv_thres && (dtraining_rmse-last_training_rmse) < conv_thres)
