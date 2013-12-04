@@ -63,9 +63,9 @@ void searchmtree( const vertex_data& user, const std::map<unsigned int, bool>& h
                     candi_pq.push(vertexpq(mnode->item.at(i).first, prediction));
                     if(candi_pq.size() > n_top)
                     {
-			upbound = candi_pq.top().dist;
                         candi_pq.pop();
-                    }
+               		upbound = candi_pq.top().dist;
+		    }
                     //upbound = candi_pq.top().dist;    //update upper bound
                }
             }

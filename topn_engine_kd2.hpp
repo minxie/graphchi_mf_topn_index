@@ -84,9 +84,9 @@ void searchkdtree( const vertex_data& user, const std::map<unsigned int, bool>& 
                     candi_pq.push(vertexpq(mnode->item.at(i).first, prediction));
                     if(candi_pq.size() > n_top)
                     {
-			upbound = candi_pq.top().dist;    //update upper bound
                         candi_pq.pop();
-                    }
+                        upbound = candi_pq.top().dist;    //update upper bound
+		    }
                     //upbound = candi_pq.top().dist;    //update upper bound
                }
             }
