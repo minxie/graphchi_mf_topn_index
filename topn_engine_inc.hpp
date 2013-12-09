@@ -134,8 +134,6 @@ void find_top(const vertex_data& user, unsigned int u_index, std::vector<std::pa
 	vertex_data cur_user = user;   
 	for (int i = 0; i < n_top; i++)
 	{
-		if(i >= rec_vec.size())
-			std::cout << "*************Overflow at line 138*************" << std::endl;
 		double dist = shortest_dis( (*latent_factors)[rec_vec.at(i).first], cur_user, theta);
 		shortest.push_back(std::make_pair(rec_vec.at(i).first, dist));
 		/* Insert the top1 item-user pair into map */
@@ -237,15 +235,14 @@ void find_top(const vertex_data& user, unsigned int u_index, std::vector<std::pa
 			delta++;	
 		}
 	}
-	std::cout << "after while loop for user " << u_index << std::endl;
 	/* Create new buffer */
 	rec_buf * tmp_buffer = new rec_buf();
 	tmp_buffer->index = u_index;
 	for(int i = 0; i < n_top+delta; i++)
 	{
-	    if(i >= rec_vec.size())
-		std::cout << "*************Overflow at line 243*************" << std::endl;
-	    tmp_buffer->item.push_back(rec_vec.at(i).first);
+	    	if(i >= rec_vec.size())
+			std::cout << "*************Overflow at line 243*************" << std::endl;
+	    	tmp_buffer->item.push_back(rec_vec.at(i).first);
 	}
 	tmp_buffer->uppervalue = uppervalue;
 	tmp_buffer->num = 1;
@@ -275,9 +272,11 @@ void find_top(const vertex_data& user, unsigned int u_index, std::vector<std::pa
 		    user_buffer.at(u_index) = tmp_buffer;
 		}
 	}
-		free(tmp_buffer);
-		tmp_buffer = NULL;
+	free(tmp_buffer);
+	tmp_buffer = NULL;
+
 	std::cout << "Create buffer for usr " << u_index << std::endl;
+
 	std::ofstream ouf("../../result/rec_result_inc", std::ofstream::out | std::ofstream::app);
 	ouf << "User " << u_index << ", Value " << uppervalue << ", Maintain items: " << n_top+delta << std::endl;
 	
@@ -320,122 +319,123 @@ struct GeneralTopNProgram : public GraphChiProgram<VertexDataType, EdgeDataType>
 	/* iteration >= 1, needs to search the maintainted items first */
 	if(cur_iter > 0)
 	{
-		std::cout << "User " << vertex.id() << "**********Not iteration 0*************" << cur_iter << std::endl;
-	  std::cout << "lf_previous.size " << lf_previous->size()  << " User " <<vertex.id()   << std::endl;
-	  vertex_data & pre_user = (*lf_previous)[vertex.id()];
-	  /* First check if the updated user is still within the theta range */
-	  std::cout << "User " << vertex.id() << "user_buffer size " << user_buffer.size() <<std::endl;
-	  rec_buf * pbuff = user_buffer.at(vertex.id());
-	  std::vector<unsigned int> & pre_vec = pbuff->item;
-	  std::cout << "User " << vertex.id() << "previous item set size " << pre_vec.size() << std::endl;
-	  int compare = 0;
-	  double new_dis = 0;
-	  double new_up = pbuff->uppervalue;
-	  new_up += update_uppervalue(theta, pre_user);	
-	  for (int i = 0; i < pre_vec.size(); i++)
-	  {
-	  	new_dis = dot_prod(cur_user.pvec, latent_factors_inmem[pre_vec.at(i)].pvec);
-		if(new_dis >= new_up)
-		    compare++; 
-	  }
-	  /* updated user is still within the theta range */
-	 std::cout << "Check if user " <<vertex.id()  << " is still in range " << compare <<  std::endl;
-	  if(compare < n_top)
-	  {
-		std::cout << "User " << vertex.id() << "Not in range " << top_one.size() << std::endl;
-		unsigned int top1 = top_one.at(vertex.id());
-		/* Check map to search for users with same top1 item */	
-		int count = item_top.count(top1);
-		std::cout << "Check if there is other user with same top 1 item as user " << vertex.id() << std::endl;
-		if (count == 0)
-		{
-	  		std::partial_sort(rec_vec.begin(), rec_vec.begin()+num+n_top, rec_vec.end(), sort_items_c);
-	  		/* Update top one item */
-	  		top_one.at(vertex.id()) = rec_vec.at(0).first;
-			/* Insert map */
-			item_top.insert(std::pair<unsigned int, unsigned int>(rec_vec.at(0).first, vertex.id()));
-			/* Update buffer pointer */
-	  		find_top(cur_user, vertex.id(), rec_vec);
-		}
- 		else
-		{	/* Check with every user who has the same top1 item */	
-			std::multimap<unsigned int, unsigned int>::iterator it;
-    			for (it=item_top.equal_range(top1).first; it!=item_top.equal_range(top1).second; ++it)
+		std::cout << "User " << vertex.id() << "********** iteration " << cur_iter << std::endl;
+	  	std::cout << " User " <<vertex.id()   << "lf_previous.size " << lf_previous->size() << std::endl;
+
+	  	vertex_data & pre_user = (*lf_previous)[vertex.id()];
+		/* First check if the updated user is still within the theta range */
+		std::cout << "User " << vertex.id() << "user_buffer size " << user_buffer.size() <<std::endl;
+		rec_buf * pbuff = user_buffer.at(vertex.id());
+		std::vector<unsigned int> & pre_vec = pbuff->item;
+	  	std::cout << "User " << vertex.id() << "previous item set size " << pre_vec.size() << std::endl;
+	  	int compare = 0;
+	  	double new_dis = 0;
+	  	double new_up = pbuff->uppervalue;
+	  	new_up += update_uppervalue(theta, pre_user);	
+	  	for (int i = 0; i < pre_vec.size(); i++)
+	  	{
+	  		new_dis = dot_prod(cur_user.pvec, latent_factors_inmem[pre_vec.at(i)].pvec);
+			if(new_dis >= new_up)
+		    		compare++; 
+	  	}
+	  	/* Chekc if updated user is still within the theta range */
+	 	std::cout << "Check if user " <<vertex.id()  << " is still in range " << compare <<  std::endl;
+	  	if(compare < n_top)
+	  	{
+			std::cout << "User " << vertex.id() << " Not in range " << top_one.size() << std::endl;
+			unsigned int top1 = top_one.at(vertex.id());
+			/* Check map to search for users with same top1 item */	
+			int count = item_top.count(top1);
+			std::cout << "Check if there is other user with same top 1 item as user " << vertex.id() << std::endl;
+			if (count == 0)
 			{
-				/* Check if the user still points to this buffer */
-				std::cout << "User " << vertex.id() << " Check if the user in map is still valid" << std::endl;
-				std::cout << "User " << vertex.id() << " " << (*it).second << std::endl;
-				if(top_one.at( (*it).second ) != top1)
-					continue;
-				pre_user = (*lf_previous)[ (*it).second ];
-				/* Check if the buffer satisfied the condition */
-				pbuff = user_buffer.at( (*it).second);
-				pre_vec = pbuff->item;
-				compare = 0;
-				new_dis = 0;
-				new_up = pbuff->uppervalue;
-				for (int i = 0; i < pre_vec.size(); i++)
-	  			{
-	  				new_dis = dot_prod(cur_user.pvec, latent_factors_inmem[pre_vec.at(i)].pvec);
-	  				new_up += update_uppervalue(theta, cur_user);	
-					if(new_dis >= new_up)
-		    			compare++; 
-	  			}
-				std::cout << "User " << vertex.id() << " Check if the buffer can be accepted" << std::endl;
-				if(compare >= n_top)
-				{	/* Accept current buffer */
-					user_buffer.at(vertex.id())->num--;
-					std::cout << "User " << vertex.id() << " Check if old buffer needs to be released" << std::endl;
-					if(user_buffer.at(vertex.id())->num == 0)
-					{
-						rec_buf * tmp_p = new rec_buf();
-						tmp_p = user_buffer.at(vertex.id());
-						user_buffer.at(vertex.id())= pbuff;
-						free(tmp_p);
-						tmp_p = NULL;
+	  			std::partial_sort(rec_vec.begin(), rec_vec.begin()+num+n_top, rec_vec.end(), sort_items_c);
+	  			/* Update top one item */
+	  			top_one.at(vertex.id()) = rec_vec.at(0).first;
+				/* Insert map */
+				item_top.insert(std::pair<unsigned int, unsigned int>(rec_vec.at(0).first, vertex.id()));
+				/* Update buffer pointer */
+	  			find_top(cur_user, vertex.id(), rec_vec);
+			}
+ 			else
+			{	/* Check with every user who has the same top1 item */	
+				std::multimap<unsigned int, unsigned int>::iterator it;
+    				for (it=item_top.equal_range(top1).first; it!=item_top.equal_range(top1).second; ++it)
+				{
+					/* Check if the user still points to this buffer */
+					std::cout << "User " << vertex.id() << " Check if the user in map is still valid" << std::endl;
+					std::cout << "User " << vertex.id() << " " << (*it).second << std::endl;
+					if(top_one.at( (*it).second ) != top1)
+						continue;
+					pre_user = (*lf_previous)[ (*it).second ];
+					/* Check if the buffer satisfied the condition */
+					pbuff = user_buffer.at( (*it).second);
+					pre_vec = pbuff->item;
+					compare = 0;
+					new_dis = 0;
+					new_up = pbuff->uppervalue;
+					for (int i = 0; i < pre_vec.size(); i++)
+	  				{
+	  					new_dis = dot_prod(cur_user.pvec, latent_factors_inmem[pre_vec.at(i)].pvec);
+	  					new_up += update_uppervalue(theta, cur_user);	
+						if(new_dis >= new_up)
+		    				compare++; 
+	  				}
+					std::cout << "User " << vertex.id() << " Check if the buffer can be accepted" << std::endl;
+					if(compare >= n_top)
+					{	/* Accept current buffer */
+						user_buffer.at(vertex.id())->num--;
+						std::cout << "User " << vertex.id() << " Check if old buffer needs to be released" << std::endl;
+						if(user_buffer.at(vertex.id())->num == 0)
+						{
+							rec_buf * tmp_p = new rec_buf();
+							tmp_p = user_buffer.at(vertex.id());
+							user_buffer.at(vertex.id())= pbuff;
+							free(tmp_p);
+							tmp_p = NULL;
+						}
+						else
+						{
+							user_buffer.at(vertex.id()) = pbuff;
+						}
+						pbuff->num++;
+						/* Update top1 item */
+						top_one.at(vertex.id()) = update_topone(cur_user, pbuff->item);
+						/* Insert map */
+						item_top.insert(std::pair<unsigned int, unsigned int>(top_one.at(vertex.id()), vertex.id() )  );
+						continue;
 					}
 					else
 					{
-						user_buffer.at(vertex.id()) = pbuff;
-					}
-					pbuff->num++;
-					/* Update top1 item */
-					top_one.at(vertex.id()) = update_topone(cur_user, pbuff->item);
-					/* Insert map */
-					item_top.insert(std::pair<unsigned int, unsigned int>(top_one.at(vertex.id()), vertex.id() )  );
-					continue;
-				}
-				else
-				{
-	  				std::partial_sort(rec_vec.begin(), rec_vec.begin()+num+n_top, rec_vec.end(), sort_items_c);
-	  				/* Update top one item */
-	  				top_one.at(vertex.id()) = rec_vec.at(0).first;
-					/* Insert map */
-					item_top.insert(std::pair<unsigned int, unsigned int>(rec_vec.at(0).first, vertex.id()) );
-					/* Update buffer pointer */
-	  				find_top(cur_user, vertex.id(), rec_vec);
-				}				
-			}			
-		}	
+	  					std::partial_sort(rec_vec.begin(), rec_vec.begin()+num+n_top, rec_vec.end(), sort_items_c);
+	  					/* Update top one item */
+	  					top_one.at(vertex.id()) = rec_vec.at(0).first;
+						/* Insert map */
+						item_top.insert(std::pair<unsigned int, unsigned int>(rec_vec.at(0).first, vertex.id()) );
+						/* Update buffer pointer */
+	  					find_top(cur_user, vertex.id(), rec_vec);
+					}				
+				}			
+			}		
 
-	  }
-	  else
-		std::cout << "User " << vertex.id() << "is still in range" << std::endl;
+	  	}
+	  	else
+			std::cout << "User " << vertex.id() << "is still in range" << std::endl;
 
 	}
 	/* first iteration */
 	else
 	{	std::cout << "iteration " << cur_iter << " user " << vertex.id() << std::endl;
-	  std::partial_sort(rec_vec.begin(), rec_vec.begin()+num+n_top, rec_vec.end(), sort_items_c);
-	  /* Record top one item */
+	  	std::partial_sort(rec_vec.begin(), rec_vec.begin()+num+n_top, rec_vec.end(), sort_items_c);
+	  	/* Record top one item */
 		if (vertex.id() >= top_one.size())
 			std::cout << "*************Overflow at line 418*************" << std::endl;
-	  top_one.at(vertex.id()) = rec_vec.at(0).first;
-	  std::cout << rec_vec.at(0).first << ", " << vertex.id() << std::endl;
-	  item_top.insert(std::pair<unsigned int, unsigned int>(rec_vec.at(0).first, vertex.id()) );
-	  std::cout << "entering find_top function for user " << vertex.id() << std::endl;
-	  find_top(cur_user, vertex.id(), rec_vec);
-	  std::cout << "found topn for user " << vertex.id() << std::endl;
+	  	top_one.at(vertex.id()) = rec_vec.at(0).first;
+	  	std::cout << rec_vec.at(0).first << ", " << vertex.id() << std::endl;
+	  	item_top.insert(std::pair<unsigned int, unsigned int>(rec_vec.at(0).first, vertex.id()) );
+	  	std::cout << "entering find_top function for user " << vertex.id() << std::endl;
+	  	find_top(cur_user, vertex.id(), rec_vec);
+	  	std::cout << "found topn for user " << vertex.id() << std::endl;
 	}
 
     }
