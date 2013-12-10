@@ -49,7 +49,7 @@ struct rec_buf
   }
 };*/
 
-
+unsigned int usercount = 0;
 std::vector<rec_buf *> user_buffer;
 
 bool sort_items_c(std::pair<unsigned int, double> a, std::pair<unsigned int, double> b) {
@@ -87,19 +87,19 @@ double shortest_dis(const vertex_data& item, const vertex_data& user, double the
 	return distance;
 }
 
-double update_uppervalue(double theta, const vertex_data& user)
+double update_uppervalue(double theta)
 {
-	double update = 0;
+	double update = -100;
 	for (int i = 0; i < D; i++)
 	{
-	    if ( (*ldelta)[i] * (user.pvec[i]-theta) > update)
-		update = (*ldelta)[i] * (user.pvec[i]-theta);
-	    if ( (*ldelta)[i] * (user.pvec[i]+theta) > update)
-		update = (*ldelta)[i] * (user.pvec[i]+theta);
-	    if ( (*rdelta)[i] * (user.pvec[i]-theta) > update)
-		update = (*rdelta)[i] * (user.pvec[i]-theta);
-	    if ( (*rdelta)[i] * (user.pvec[i]+theta) > update)
-		update = (*rdelta)[i] * (user.pvec[i]+theta);  
+	    if ( (*ldelta)[i] * (-theta) > update)
+		update = (*ldelta)[i] * (-theta);
+	    if ( (*ldelta)[i] * theta > update)
+		update = (*ldelta)[i] * theta;
+	    if ( (*rdelta)[i] * (-theta) > update)
+		update = (*rdelta)[i] * (-theta);
+	    if ( (*rdelta)[i] * theta > update)
+		update = (*rdelta)[i] * theta;  
 	}
 	return update;
 }
@@ -171,8 +171,6 @@ void find_top(const vertex_data& user, unsigned int u_index, std::vector<std::pa
 	while(tmp)
 	{	//std::cout << "rec_Vec size: " << rec_vec.size() << std::endl;
 		int selected = n_top + delta;
-		if(selected >= rec_vec.size())
-			std::cout << "*************Overflow at line 176*************" << std::endl;
 		unsigned int index = rec_vec.at(selected).first;
                 vertex_data & cur_item = (*latent_factors)[index];
 		//	budget is the production of the last item selected and the current user
@@ -198,7 +196,7 @@ void find_top(const vertex_data& user, unsigned int u_index, std::vector<std::pa
 					break;
 				}
 			}
-			else												//	u[i] is initially negative
+			else								//	u[i] is initially negative
 			{
 				budget -= cur_user.pvec[dim] * (-( (*rbound)[dim]) );	//	budget will increase here
 				if(cur_user.pvec[dim] * ( (*rbound)[dim] - (*lbound)[dim] ) < budget)
@@ -240,16 +238,12 @@ void find_top(const vertex_data& user, unsigned int u_index, std::vector<std::pa
 	tmp_buffer->index = u_index;
 	for(int i = 0; i < n_top+delta; i++)
 	{
-	    	if(i >= rec_vec.size())
-			std::cout << "*************Overflow at line 243*************" << std::endl;
 	    	tmp_buffer->item.push_back(rec_vec.at(i).first);
 	}
 	tmp_buffer->uppervalue = uppervalue;
 	tmp_buffer->num = 1;
 	num_buffer++;
 	delta_sum += delta;
-	if(u_index >= user_buffer.size())
-		std::cout << "*************Overflow at line 253*************" << std::endl;
         if(cur_iter == 0) 
 	{
 		user_buffer.at(u_index) = tmp_buffer;
@@ -272,19 +266,19 @@ void find_top(const vertex_data& user, unsigned int u_index, std::vector<std::pa
 		    user_buffer.at(u_index) = tmp_buffer;
 		}
 	}
-	free(tmp_buffer);
-	tmp_buffer = NULL;
+	//free(tmp_buffer);
+	//tmp_buffer = NULL;
 
 	std::cout << "Create buffer for usr " << u_index << std::endl;
 
 	std::ofstream ouf("../../result/rec_result_inc", std::ofstream::out | std::ofstream::app);
 	ouf << "User " << u_index << ", Value " << uppervalue << ", Maintain items: " << n_top+delta << std::endl;
-	
+	/*
 	for(int i = 0; i < n_top+delta; i++)
 	{
 	    ouf << "<" << u_index << ", " << rec_vec.at(i).first << ", " << rec_vec.at(i).second << ", " << shortest.at(i).second << ">";
 	}
-	ouf << std::endl;
+	ouf << std::endl;*/
 	ouf.close();
 
 }
@@ -294,11 +288,11 @@ void find_top(const vertex_data& user, unsigned int u_index, std::vector<std::pa
 struct GeneralTopNProgram : public GraphChiProgram<VertexDataType, EdgeDataType> {
 
   void update(graphchi_vertex<VertexDataType, EdgeDataType> &vertex, graphchi_context &gcontext) {
-    if (vertex.id() < M) {
+    if (vertex.num_outedges() > 0) {
+	usercount++;
 	std::cout << "begin finding items for user " << vertex.id() << std::endl;
       /* Exclude neighbors */
       std::map<unsigned int, bool> h_neighbor;
-	std::cout << "User " << vertex.id()  << " neighbors " << vertex.num_edges() <<std::endl;
       for (int e = 0; e < vertex.num_edges(); e++) {
         h_neighbor[vertex.edge(e)->vertex_id()] = true;
       }
@@ -314,24 +308,37 @@ struct GeneralTopNProgram : public GraphChiProgram<VertexDataType, EdgeDataType>
           rec_vec.push_back(std::make_pair(i, prediction));
         }
       }
-	std::cout << "excluded neighbors for user " << vertex.id() << std::endl;
       //std::partial_sort(rec_vec.begin(), rec_vec.begin()+n_top, rec_vec.end(), sort_items_c);
+	if (cur_iter == 0)
+	{
+		std::cout << "iteration " << cur_iter << " user " << vertex.id() << std::endl;
+	  	std::partial_sort(rec_vec.begin(), rec_vec.begin()+num+n_top, rec_vec.end(), sort_items_c);
+	  	/* Record top one item */
+	  	top_one.at(vertex.id()) = rec_vec.at(0).first;
+	  	std::cout << rec_vec.at(0).first << ", " << vertex.id() << std::endl;
+	  	item_top.insert(std::pair<unsigned int, unsigned int>(rec_vec.at(0).first, vertex.id()) );
+	  	std::cout << "entering find_top function for user " << vertex.id() << std::endl;
+	  	find_top(cur_user, vertex.id(), rec_vec);
+	  	std::cout << "found topn for user " << vertex.id() << std::endl;
+
+	}
 	/* iteration >= 1, needs to search the maintainted items first */
-	if(cur_iter > 0)
+
+	else if(cur_iter > 0)
 	{
 		std::cout << "User " << vertex.id() << "********** iteration " << cur_iter << std::endl;
-	  	std::cout << " User " <<vertex.id()   << "lf_previous.size " << lf_previous->size() << std::endl;
+//	  	std::cout << " User " <<vertex.id()   << "lf_previous.size " << lf_previous->size() << std::endl;
 
-	  	vertex_data & pre_user = (*lf_previous)[vertex.id()];
+	  	//vertex_data & pre_user = (*lf_previous)[vertex.id()];
 		/* First check if the updated user is still within the theta range */
-		std::cout << "User " << vertex.id() << "user_buffer size " << user_buffer.size() <<std::endl;
+//		std::cout << "User " << vertex.id() << "user_buffer size " << user_buffer.size() <<std::endl;
 		rec_buf * pbuff = user_buffer.at(vertex.id());
 		std::vector<unsigned int> & pre_vec = pbuff->item;
 	  	std::cout << "User " << vertex.id() << "previous item set size " << pre_vec.size() << std::endl;
 	  	int compare = 0;
 	  	double new_dis = 0;
 	  	double new_up = pbuff->uppervalue;
-	  	new_up += update_uppervalue(theta, pre_user);	
+	  	new_up += update_uppervalue(theta);	
 	  	for (int i = 0; i < pre_vec.size(); i++)
 	  	{
 	  		new_dis = dot_prod(cur_user.pvec, latent_factors_inmem[pre_vec.at(i)].pvec);
@@ -342,7 +349,7 @@ struct GeneralTopNProgram : public GraphChiProgram<VertexDataType, EdgeDataType>
 	 	std::cout << "Check if user " <<vertex.id()  << " is still in range " << compare <<  std::endl;
 	  	if(compare < n_top)
 	  	{
-			std::cout << "User " << vertex.id() << " Not in range " << top_one.size() << std::endl;
+			std::cout << "User " << vertex.id() << " Not in range " << std::endl;
 			unsigned int top1 = top_one.at(vertex.id());
 			/* Check map to search for users with same top1 item */	
 			int count = item_top.count(top1);
@@ -358,16 +365,18 @@ struct GeneralTopNProgram : public GraphChiProgram<VertexDataType, EdgeDataType>
 	  			find_top(cur_user, vertex.id(), rec_vec);
 			}
  			else
-			{	/* Check with every user who has the same top1 item */	
+			{	/* Check with every user who has the same top1 item */
+				int found_similar = 0;	
 				std::multimap<unsigned int, unsigned int>::iterator it;
     				for (it=item_top.equal_range(top1).first; it!=item_top.equal_range(top1).second; ++it)
 				{
 					/* Check if the user still points to this buffer */
+					std::cout << "Index first: " << (*it).first << ", index second: " << (*it).second << std::endl;
 					std::cout << "User " << vertex.id() << " Check if the user in map is still valid" << std::endl;
 					std::cout << "User " << vertex.id() << " " << (*it).second << std::endl;
-					if(top_one.at( (*it).second ) != top1)
+					if(top_one.at( (*it).second ) != top1 || (*it).second == vertex.id())
 						continue;
-					pre_user = (*lf_previous)[ (*it).second ];
+					vertex_data & pre_user = (*lf_previous)[ (*it).second ];
 					/* Check if the buffer satisfied the condition */
 					pbuff = user_buffer.at( (*it).second);
 					pre_vec = pbuff->item;
@@ -377,13 +386,14 @@ struct GeneralTopNProgram : public GraphChiProgram<VertexDataType, EdgeDataType>
 					for (int i = 0; i < pre_vec.size(); i++)
 	  				{
 	  					new_dis = dot_prod(cur_user.pvec, latent_factors_inmem[pre_vec.at(i)].pvec);
-	  					new_up += update_uppervalue(theta, cur_user);	
+	  					new_up += update_uppervalue(theta);	
 						if(new_dis >= new_up)
 		    				compare++; 
 	  				}
 					std::cout << "User " << vertex.id() << " Check if the buffer can be accepted" << std::endl;
 					if(compare >= n_top)
 					{	/* Accept current buffer */
+						found_similar = 1;
 						user_buffer.at(vertex.id())->num--;
 						std::cout << "User " << vertex.id() << " Check if old buffer needs to be released" << std::endl;
 						if(user_buffer.at(vertex.id())->num == 0)
@@ -402,19 +412,19 @@ struct GeneralTopNProgram : public GraphChiProgram<VertexDataType, EdgeDataType>
 						/* Update top1 item */
 						top_one.at(vertex.id()) = update_topone(cur_user, pbuff->item);
 						/* Insert map */
-						item_top.insert(std::pair<unsigned int, unsigned int>(top_one.at(vertex.id()), vertex.id() )  );
-						continue;
+						item_top.insert(std::pair<unsigned int, unsigned int>(top_one.at(vertex.id()), vertex.id() )  );	
 					}
-					else
-					{
-	  					std::partial_sort(rec_vec.begin(), rec_vec.begin()+num+n_top, rec_vec.end(), sort_items_c);
-	  					/* Update top one item */
-	  					top_one.at(vertex.id()) = rec_vec.at(0).first;
-						/* Insert map */
-						item_top.insert(std::pair<unsigned int, unsigned int>(rec_vec.at(0).first, vertex.id()) );
-						/* Update buffer pointer */
-	  					find_top(cur_user, vertex.id(), rec_vec);
-					}				
+				}
+				if (found_similar == 0)
+				{
+	  				std::partial_sort(rec_vec.begin(), rec_vec.begin()+num+n_top, rec_vec.end(), sort_items_c);
+	  				/* Update top one item */
+	  				top_one.at(vertex.id()) = rec_vec.at(0).first;
+					/* Insert map */
+					item_top.insert(std::pair<unsigned int, unsigned int>(rec_vec.at(0).first, vertex.id()) );
+					/* Update buffer pointer */
+	  				find_top(cur_user, vertex.id(), rec_vec);
+					
 				}			
 			}		
 
@@ -422,20 +432,6 @@ struct GeneralTopNProgram : public GraphChiProgram<VertexDataType, EdgeDataType>
 	  	else
 			std::cout << "User " << vertex.id() << "is still in range" << std::endl;
 
-	}
-	/* first iteration */
-	else
-	{	std::cout << "iteration " << cur_iter << " user " << vertex.id() << std::endl;
-	  	std::partial_sort(rec_vec.begin(), rec_vec.begin()+num+n_top, rec_vec.end(), sort_items_c);
-	  	/* Record top one item */
-		if (vertex.id() >= top_one.size())
-			std::cout << "*************Overflow at line 418*************" << std::endl;
-	  	top_one.at(vertex.id()) = rec_vec.at(0).first;
-	  	std::cout << rec_vec.at(0).first << ", " << vertex.id() << std::endl;
-	  	item_top.insert(std::pair<unsigned int, unsigned int>(rec_vec.at(0).first, vertex.id()) );
-	  	std::cout << "entering find_top function for user " << vertex.id() << std::endl;
-	  	find_top(cur_user, vertex.id(), rec_vec);
-	  	std::cout << "found topn for user " << vertex.id() << std::endl;
 	}
 
     }
@@ -487,7 +483,7 @@ void run_general_topn_program(graphchi_engine<VertexDataType, EdgeDataType> *eng
   engine->run(test_prog, 1);
   std::ofstream ofs("../../result/result_inc", std::ofstream::out | std::ofstream::app);
 
-  ofs << "Iteration: " << cur_iter << " Buffer created: " << num_buffer << std::endl;
+  ofs << "Iteration: " << cur_iter << "User count: " << usercount <<  " Buffer created: " << num_buffer << std::endl;
   ofs << "Total delta: " << delta_sum <<"Max delta: " << delta_max << " Min delta: " << delta_min << std::endl;
   ofs.close();
 
