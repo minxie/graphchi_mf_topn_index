@@ -224,7 +224,12 @@ int main(int argc, const char ** argv) {
   /* Run TopN program */
   n_top = get_option_int("n_int", 10);
   run_general_topn_program(pengine, &latent_factors_inmem, &sgd_predict);
+
+  timer index_timer;
+
   m_Tree* root = init_mtree(&latent_factors_inmem);
+  ofs << index_timer.current_time() << " ";
+
   timer test_timer;
   run_m_topn_program(pengine, &latent_factors_inmem, root);
  // std::cout << "Tst Time: " << std::setw(10) << test_timer.current_time() << std::endl;

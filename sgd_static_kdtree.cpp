@@ -246,13 +246,13 @@ int main(int argc, const char ** argv) {
 
   ofs << test_timer1.current_time() << " ";*/
   //run_general_topn_program(pengine, &latent_factors_inmem, &sgd_predict);
+  timer index_timer;
   kd_Node* mroot = init_kdtree(&latent_factors_inmem);
-
+  ofs << index_timer.current_time() << " ";
   timer test_timer;
   /* construct kd tree index */ 
 //  ofs << "constructing index: " << test_timer.current_time() << " ";
   run_kd_topn_program(pengine, &latent_factors_inmem, mroot);
-
 
  // std::coua << "Tst Time: " << std::setw(10) << test_timer.current_time() << std::endl;
   ofs << test_timer.current_time() << std::endl;

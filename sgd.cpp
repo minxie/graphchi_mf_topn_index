@@ -223,6 +223,8 @@ int main(int argc, const char ** argv) {
   /* Run TopN program */
   n_top = get_option_int("n_int", 10);
   timer test_timer;
+  //build index here
+
   run_general_topn_program(pengine, &latent_factors_inmem, &sgd_predict);
  // std::cout << "Tst Time: " << std::setw(10) << test_timer.current_time() << std::endl;
   ofs << test_timer.current_time() << std::endl;

@@ -27,19 +27,27 @@ struct GeneralTopNProgram : public GraphChiProgram<VertexDataType, EdgeDataType>
       for (int e = 0; e < vertex.num_edges(); e++) {
         h_neighbor[vertex.edge(e)->vertex_id()] = true;
       }
-
       /* Calculate TopN recommendations */
       std::vector<std::pair<unsigned int, double> > rec_vec;
       vertex_data & vdata = (*latent_factors)[vertex.id()];
       for (unsigned int i = M; i < M + N; i++) {
-      //  if (h_neighbor.find(i) == h_neighbor.end()) { // Not observed
+        if (h_neighbor.find(i) == h_neighbor.end()) { // Not observed
           vertex_data & nbr_latent = latent_factors_inmem[i];
           double prediction;
           (*pprediction_func_test)(vdata, nbr_latent, 0, prediction, NULL);
           rec_vec.push_back(std::make_pair(i, prediction));
-       // }
+        }
       }
       std::partial_sort(rec_vec.begin(), rec_vec.begin()+n_top, rec_vec.end(), sort_items_c);
+	std::ofstream ofs("../../result/rec_result_general", std::ofstream::out | std::ofstream::app);
+	for(int i = 0; i < n_top; i++)
+	{
+	    ofs << "<" << vertex.id() << ", " << rec_vec.at(i).first << ", " << rec_vec.at(i).second << ">";
+	}
+	ofs << std::endl;
+	ofs.close();
+
+
     }
   }
 
@@ -64,7 +72,6 @@ void run_general_topn_program(graphchi_engine<VertexDataType, EdgeDataType> *eng
   GeneralTopNProgram test_prog;
   engine->run(test_prog, 1);
 }
-
 
 
 

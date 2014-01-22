@@ -1,5 +1,5 @@
 export GRAPHCHI_ROOT=../
-for m in '10' '20' '30' '40' '50'
+for m in '60' '70' '80' '90' '100'
 do
 	for l in  '1e-3'
   	do
