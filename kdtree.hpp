@@ -24,7 +24,6 @@ int level, range;
 
 kd_Node* build_kdtree(int level, std::vector<double> lbound, std::vector<double> rbound, std::vector<std::pair<unsigned int, vertex_data> > tids)
 {
-	
 	kd_Node *root = new kd_Node();
 	root->lbound = lbound;
 	root->rbound = rbound;
@@ -40,15 +39,13 @@ kd_Node* build_kdtree(int level, std::vector<double> lbound, std::vector<double>
                 return root;
         }
 	
-	
 	//building kd tree
 	int att = level % D;
-	double copy[tids.size()];
+	double * copy = new double[tids.size()];
 	double median;
 	for(unsigned int i = 0; i < tids.size(); i++)
 		copy[i] = tids.at(i).second.pvec[att];
 	std::sort(copy, copy+tids.size());
-
 	if(tids.size() % 2 == 1)
 		median = copy[tids.size()/2 + 1];
 	else
@@ -67,7 +64,7 @@ kd_Node* build_kdtree(int level, std::vector<double> lbound, std::vector<double>
 			rtids.push_back(tids.at(i));
 		}
 	}
-
+	delete [] copy;
 	double tmp_val = rbound.at(att);
 	rbound.at(att) = median;
 	root->lchild = build_kdtree(level+1, lbound, rbound, ltids);

@@ -24,6 +24,8 @@
  * File for aggregating and siplaying error mesasures and algorithm progress
  */
 
+#include "common.hpp"
+
 float (*pprediction_func)(const vertex_data&, const vertex_data&, const float, double &, void *) = NULL;
 vec validation_rmse_vec;
 vec users_vec;
@@ -90,8 +92,8 @@ struct ValidationAPProgram : public GraphChiProgram<VertexDataType, EdgeDataType
     assert(Le > 0);
     dvalidation_rmse = finalize_rmse(sum(sum_ap_vec) , (double)sum(users_vec));
     std::cout<<"  Validation  " << error_names[loss_type] << ":" << std::setw(10) << dvalidation_rmse << std::endl;
-    if (halt_on_rmse_increase > 0 && halt_on_rmse_increase < cur_iteration && dvalidation_rmse > last_validation_rmse){
-      logstream(LOG_WARNING)<<"Stopping engine because of validation " << error_names[loss_type] <<  " increase" << std::endl;
+     if (halt_on_rmse_increase > 0 && halt_on_rmse_increase < cur_iteration && dvalidation_rmse > last_validation_rmse){
+    logstream(LOG_WARNING)<<"Stopping engine because of validation " << error_names[loss_type] <<  " increase" << std::endl;
       //gcontext.set_last_iteration(gcontext.iteration);
       converged_engine = true;
     }
@@ -138,7 +140,8 @@ struct ValidationRMSEProgram : public GraphChiProgram<VertexDataType, EdgeDataTy
     dvalidation_rmse = finalize_rmse(sum(validation_rmse_vec) , (double)Le);
     std::cout<<"  Validation  " << error_names[loss_type] << ":" << std::setw(10) << dvalidation_rmse << std::endl;
     if (halt_on_rmse_increase > 0 && halt_on_rmse_increase < cur_iteration && dvalidation_rmse > last_validation_rmse){
-      logstream(LOG_WARNING)<<"Stopping engine because of validation RMSE increase" << std::endl;
+  //   if (last_validation_rmse < conv_thres){ 
+     logstream(LOG_WARNING)<<"Stopping engine because of validation RMSE increase" << std::endl;
        converged_engine = true;
     }
   }
@@ -180,5 +183,6 @@ void run_validation(graphchi_engine<VertexDataType, EdgeDataType> * pvalidation_
   if (converged_engine)
     context.set_last_iteration(context.iteration);
 }
+
 
 #endif //__GRAPHCHI_RMSE_ENGINE
