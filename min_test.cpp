@@ -72,6 +72,7 @@ std::vector<vertex_data> latent_factors_inmem;
 #include "topn_engine_kd2.hpp"
 #include "io.hpp"
 #include "kdtree.hpp"
+#include "rtree.hpp"
 /** compute a missing value based on SGD algorithm */
 float sgd_predict(const vertex_data& user, 
     const vertex_data& movie, 
