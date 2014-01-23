@@ -97,7 +97,6 @@ public:
       items.push_back(std::make_pair(latent_factors_inmem->at(i).pvec[max_idx], i));
     }
     std::sort(items.begin(), items.end(), sort_items_rtree);
-    std::cout << items.size() << std::endl;
     
     vector<RTreeNode*> *cnode_list = new vector<RTreeNode*>();
     vector<RTreeNode*> *nnode_list = new vector<RTreeNode*>();
@@ -116,6 +115,7 @@ public:
 
       node->_count = 0;
       int tmpN = (int)N;
+      std::cout << ni * NODE_SIZE << " " << std::min(ni * NODE_SIZE + NODE_SIZE + 1, tmpN) << std::endl;
       for (int i = ni * NODE_SIZE; i < std::min(ni * NODE_SIZE + NODE_SIZE + 1, tmpN); i++) {
         node->_tids.push_back(items[i].second);
         ++node->_count;
