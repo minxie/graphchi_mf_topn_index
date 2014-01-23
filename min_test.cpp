@@ -203,7 +203,7 @@ int main(int argc, const char ** argv) {
   }
   
   RTree T;
-  T.build_rtree(latent_factors_inmem);
+  T.build_rtree(&latent_factors_inmem);
   T.print_rtree();
   
   return 0;
