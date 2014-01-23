@@ -199,10 +199,10 @@ int main(int argc, const char ** argv) {
 
   for (int i=0; i < (int)100; i++){
     for (int j=0; j<D; j++)
-      latent_factors_inmem[i].pvec[j] = scale * drand48();
+      latent_factors_inmem[i].pvec[j] = 1.0 * drand48();
   }
   
-  RTree T();
+  RTree T;
   T.build_rtree(latent_factors_inmem);
   T.print_rtree();
   
