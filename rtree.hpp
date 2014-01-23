@@ -55,12 +55,12 @@ public:
     std::cout << node->_count << std::endl;
     for (int i = 0; i < level; i++)
       std::cout << " ";
-    For (int i = 0; i < D; i++)
+    for (int i = 0; i < D; i++)
       std::cout << node->_lbound[i] << " ";
     std::cout << std::endl;
     for (int i = 0; i < level; i++)
       std::cout << " ";
-    For (int i = 0; i < D; i++)
+    for (int i = 0; i < D; i++)
       std::cout << node->_rbound[i] << " ";
     std::cout << std::endl;
     if (node->_tids.size() != 0) {
