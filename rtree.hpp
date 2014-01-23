@@ -140,7 +140,7 @@ public:
 
         node->_count = 0;
         int tmpN = (int)(cnode_list->size());
-        for (int i = ni * NODE_SIZE; i < min(ni * NODE_SIZE + NODE_SIZE + 1, tmpN); i++) {
+        for (int i = ni * NODE_SIZE; i < std::min(ni * NODE_SIZE + NODE_SIZE + 1, tmpN); i++) {
           node->_children.push_back((*cnode_list)[i]);
           node->_count += (*cnode_list)[i]->_count;
           for (int j = 0; j < D; j++) {
