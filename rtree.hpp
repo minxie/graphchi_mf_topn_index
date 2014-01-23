@@ -35,8 +35,8 @@ public:
 
 private:
   void recursive_delete(RTreeNode* node) {
-    if (node->_children.length() != 0) {
-      for (int i = 0; i < node->_children.length(); i++) {
+    if (node->_children.size() != 0) {
+      for (int i = 0; i < node->_children.size(); i++) {
         recursive_delete(node->_children[i]);
       }
     }
@@ -58,8 +58,8 @@ public:
     for (int i = 0; i < level; i++)
       std::cout << " ";
     print(node->_rbound);
-    if (node->_tids.length() != 0) {
-      for (int i = 0; i < node->_tids.length(); i++)
+    if (node->_tids.size() != 0) {
+      for (int i = 0; i < node->_tids.size(); i++)
         std::cout << node->_tids[i] << " ";
       std::cout << std::endl;
     }
@@ -120,8 +120,8 @@ public:
     }
 
     // Initiate intermediate nodes
-    while (cnode_list->length() > NODE_SIZE) {
-      num_nodes = (int)(cnode_list->length() / (float)(NODE_SIZE) + 0.5);
+    while (cnode_list->size() > NODE_SIZE) {
+      num_nodes = (int)(cnode_list->size() / (float)(NODE_SIZE) + 0.5);
       for (int ni = 0; ni < num_nodes; ni++) {
         RTreeNode *node = new RTreeNode();
 
@@ -133,7 +133,7 @@ public:
         }
 
         node->_count = 0;        
-        for (int i = ni * NODE_SIZE; i < min(ni * NODE_SIZE + NODE_SIZE + 1, cnode_list->length()); i++) {
+        for (int i = ni * NODE_SIZE; i < min(ni * NODE_SIZE + NODE_SIZE + 1, cnode_list->size()); i++) {
           node->_children.push_back((*cnode_list)[i]);
           node->_count += (*cnode_list)[i]->_count;
           for (int j = 0; j < D; j++) {
@@ -162,7 +162,7 @@ public:
     }
     
     _root->_count = 0;        
-    for (int i = 0; i < cnode_list->length(); i++) {
+    for (int i = 0; i < cnode_list->size(); i++) {
       _root->_children.push_back((*cnode_list)[i]);
       _root->_count += (*cnode_list)[i]->_count;
       for (int j = 0; j < D; j++) {
@@ -179,7 +179,7 @@ public:
 
 public:
   RTreeNode* _root;
-  vector<vertex_data> * _data
+  vector<vertex_data> * _data;
 };
 
 
