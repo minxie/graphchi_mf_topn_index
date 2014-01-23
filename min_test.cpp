@@ -191,6 +191,20 @@ void output_sgd_result(std::string filename) {
 
 int main(int argc, const char ** argv) {
 
+  D = 2;
+  M = 0;
+  N = 100;
+
+  latent_factors_inmem.resize(100);
+
+  for (int i=0; i < (int)100; i++){
+    for (int j=0; j<D; j++)
+      latent_factors_inmem[i].pvec[j] = scale * drand48();
+  }
+  
+  RTree T();
+  T.build_rtree(latent_factors_inmem);
+  T.print_rtree();
   
   return 0;
 }
