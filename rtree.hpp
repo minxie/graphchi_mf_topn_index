@@ -2,6 +2,7 @@
 #define __RTREE_H
 
 #include <algorithm>
+#include <cmath>
 #include <vector>
 using std::vector;
 
@@ -36,7 +37,7 @@ public:
 private:
   void recursive_delete(RTreeNode* node) {
     if (node->_children.size() != 0) {
-      for (int i = 0; i < node->_children.size(); i++) {
+      for (unsigned int i = 0; i < node->_children.size(); i++) {
         recursive_delete(node->_children[i]);
       }
     }
@@ -54,12 +55,16 @@ public:
     std::cout << node->_count << std::endl;
     for (int i = 0; i < level; i++)
       std::cout << " ";
-    print(node->_lbound);
+    For (int i = 0; i < D; i++)
+      std::cout << node->_lbound[i] << " ";
+    std::cout << std::endl;
     for (int i = 0; i < level; i++)
       std::cout << " ";
-    print(node->_rbound);
+    For (int i = 0; i < D; i++)
+      std::cout << node->_rbound[i] << " ";
+    std::cout << std::endl;
     if (node->_tids.size() != 0) {
-      for (int i = 0; i < node->_tids.size(); i++)
+      for (unsigned int i = 0; i < node->_tids.size(); i++)
         std::cout << node->_tids[i] << " ";
       std::cout << std::endl;
     }
@@ -105,7 +110,7 @@ public:
       }
 
       node->_count = 0;
-      for (int i = ni * NODE_SIZE; i < min(ni * NODE_SIZE + NODE_SIZE + 1, N); i++) {
+      for (int i = ni * NODE_SIZE; i < std::min(ni * NODE_SIZE + NODE_SIZE + 1, N); i++) {
         node->_tids.push_back(items[i].second);
         ++node->_count;
         for (int j = 0; j < D; j++) {
