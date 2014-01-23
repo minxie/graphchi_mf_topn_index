@@ -66,7 +66,7 @@ public:
   }
 
   void build_rtree(vector<vertex_data> *latent_factors_inmem) {
-    _data = latent_factor_inmem;
+    _data = latent_factors_inmem;
     
     vec lbound(D), rbound(D);
     for (int i = 0; i < D; i++) {
@@ -74,18 +74,18 @@ public:
       rbound[i] = -10000;
     }
 
-    max_val = -10000;
-    max_idx = 0;
+    double max_val = -10000;
+    int max_idx = 0;
     for (int i = 0; i < D; i++) {
       if (rbound[i] - lbound[i] > max_val) {
-        max_idx = i
+        max_idx = i;
       }
     }
 
     int NODE_SIZE = 50;
     vector<std::pair<double, unsigned int> > items;
     for(unsigned int i = M; i < M + N; i++) {
-      items.push_back(std::make_pair(latent_factor_inmem->at(i).pvec[max_idx], i));
+      items.push_back(std::make_pair(latent_factors_inmem->at(i).pvec[max_idx], i));
     }
     std::sort(items.begin(), items.end(), sort_items_rtree);
     
@@ -105,14 +105,14 @@ public:
       }
 
       node->_count = 0;
-      for (int i = ni * NODE_SIZE; i < min(ni * NODE_SIZE + NODE_SIZE + 1, n); i++) {
+      for (int i = ni * NODE_SIZE; i < min(ni * NODE_SIZE + NODE_SIZE + 1, N); i++) {
         node->_tids.push_back(items[i].second);
         ++node->_count;
         for (int j = 0; j < D; j++) {
-          if (latent_factor_inmem->at(items[i].second).pvec[j] < node->_lbound[j])
-            node->_lbound[j] = latent_factor_inmem->at(items[i].second).pvec[j];
-          if (latent_factor_inmem->at(items[i].second).pvec[j] > node->_rbound[j])
-            node->_rbound[j] = latent_factor_inmem->at(items[i].second).pvec[j];
+          if (latent_factors_inmem->at(items[i].second).pvec[j] < node->_lbound[j])
+            node->_lbound[j] = latent_factors_inmem->at(items[i].second).pvec[j];
+          if (latent_factors_inmem->at(items[i].second).pvec[j] > node->_rbound[j])
+            node->_rbound[j] = latent_factors_inmem->at(items[i].second).pvec[j];
         }
       }
       
@@ -149,7 +149,7 @@ public:
       cnode_list->clear();
       vector<RTreeNode*> *tmp_list = cnode_list;
       cnode_list = nnode_list;
-      nnode_list = cnode_list;
+      nnode_list = tmp_list;
     }
 
     // Final root setup
