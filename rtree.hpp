@@ -110,7 +110,8 @@ public:
       }
 
       node->_count = 0;
-      for (int i = ni * NODE_SIZE; i < std::min(ni * NODE_SIZE + NODE_SIZE + 1, N); i++) {
+      int tmpN = (int)N;
+      for (int i = ni * NODE_SIZE; i < std::min(ni * NODE_SIZE + NODE_SIZE + 1, tmpN); i++) {
         node->_tids.push_back(items[i].second);
         ++node->_count;
         for (int j = 0; j < D; j++) {
@@ -137,8 +138,9 @@ public:
           node->_rbound[i] = -10000;
         }
 
-        node->_count = 0;        
-        for (int i = ni * NODE_SIZE; i < min(ni * NODE_SIZE + NODE_SIZE + 1, cnode_list->size()); i++) {
+        node->_count = 0;
+        tmpN = (int)(cnode_list->size());
+        for (int i = ni * NODE_SIZE; i < min(ni * NODE_SIZE + NODE_SIZE + 1, tmpN); i++) {
           node->_children.push_back((*cnode_list)[i]);
           node->_count += (*cnode_list)[i]->_count;
           for (int j = 0; j < D; j++) {
