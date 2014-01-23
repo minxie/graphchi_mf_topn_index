@@ -68,6 +68,10 @@ public:
         std::cout << node->_tids[i] << " ";
       std::cout << std::endl;
     }
+    if (node->_children.size() != 0) {
+      for (unsigned int i = 0; i < node->_children.size(); i++)
+        print_rtree_node(level + 1, node->_children[i]);
+    }
   }
 
   void build_rtree(vector<vertex_data> *latent_factors_inmem) {
